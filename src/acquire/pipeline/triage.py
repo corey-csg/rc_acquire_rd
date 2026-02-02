@@ -56,6 +56,16 @@ async def triage(session: AsyncSession, event: ChangeEvent) -> TriageResult | No
     if not isinstance(content, dict):
         raise ValueError(f"Triage LLM did not return valid JSON: {str(content)[:200]}")
 
+    # Some models wrap the response in a nested object — flatten if needed
+    if "meaningful" not in content:
+        # Look for the expected fields inside any nested dict
+        for value in content.values():
+            if isinstance(value, dict) and "meaningful" in value:
+                # Merge nested dict with top-level (preserving discovered_links if at top level)
+                links = content.get("discovered_links", value.get("discovered_links", []))
+                content = {**value, "discovered_links": links}
+                break
+
     triage_result = TriageResult(**content)
 
     # Enforce max links limit
