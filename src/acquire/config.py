@@ -9,7 +9,11 @@ from pydantic import Field
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-CONFIG_DIR = ROOT_DIR / "config"
+
+# In Docker, the package is installed to site-packages but config lives at /app/config.
+# Fall back to the source-tree-relative path for local development.
+_docker_config = Path("/app/config")
+CONFIG_DIR = _docker_config if _docker_config.exists() else ROOT_DIR / "config"
 
 
 class Settings(BaseSettings):

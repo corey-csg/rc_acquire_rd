@@ -14,6 +14,7 @@ os.environ["CDIO_BASE_URL"] = "http://test-cdio:5000"
 os.environ["CDIO_API_KEY"] = "test-key"
 os.environ["OPENROUTER_API_KEY"] = "test-key"
 os.environ["SLACK_WEBHOOK_URL"] = "https://hooks.slack.com/test"
+os.environ["WEBHOOK_SECRET"] = ""
 
 from acquire.main import app
 from acquire.storage.database import get_session
