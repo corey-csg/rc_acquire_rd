@@ -25,7 +25,7 @@ def _build_slack_blocks(event: ChangeEvent) -> list[dict]:
             "type": "header",
             "text": {
                 "type": "plain_text",
-                "text": f"{emoji} {classification} — {urgency} Urgency",
+                "text": f"{emoji} {classification} - {urgency} Urgency",
             },
         },
         {

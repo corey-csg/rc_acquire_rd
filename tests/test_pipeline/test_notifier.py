@@ -21,6 +21,8 @@ def test_build_slack_blocks():
     assert len(blocks) >= 3
     assert blocks[0]["type"] == "header"
     assert "RFP" in blocks[0]["text"]["text"]
+    # Verify plain dash (not em dash) for Slack compatibility
+    assert " - " in blocks[0]["text"]["text"]
 
 
 def test_build_slack_blocks_child_event():
