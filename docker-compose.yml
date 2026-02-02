@@ -1,4 +1,12 @@
 services:
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./cdio-data:/datastore
+    restart: unless-stopped
+
   acquire:
     build: .
     ports:
@@ -7,4 +15,6 @@ services:
       - ./data:/app/data
     env_file:
       - .env
+    depends_on:
+      - changedetection
     restart: unless-stopped

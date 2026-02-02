@@ -64,6 +64,11 @@ def _build_slack_blocks(event: ChangeEvent) -> list[dict]:
 
     # Context block with metadata
     context_elements = []
+    if event.parent_event_id is not None:
+        context_elements.append({
+            "type": "mrkdwn",
+            "text": f"Discovered via Event #{event.parent_event_id}",
+        })
     if event.classification_confidence is not None:
         context_elements.append({
             "type": "mrkdwn",

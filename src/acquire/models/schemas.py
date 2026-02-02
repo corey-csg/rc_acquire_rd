@@ -23,6 +23,17 @@ class EnrichmentResult(BaseModel):
     relevant_agencies: list[str] = []
 
 
+class DiscoveredLink(BaseModel):
+    url: str
+    reason: str
+
+
+class TriageResult(BaseModel):
+    meaningful: bool
+    triage_reasoning: str
+    discovered_links: list[DiscoveredLink] = []
+
+
 class HealthResponse(BaseModel):
     status: str = "ok"
     version: str = "0.1.0"

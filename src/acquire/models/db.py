@@ -10,6 +10,7 @@ from sqlmodel import SQLModel, Field
 class PipelineStatus(str, Enum):
     RECEIVED = "received"
     FETCHED = "fetched"
+    TRIAGED = "triaged"
     CLASSIFIED = "classified"
     ENRICHED = "enriched"
     NOTIFIED = "notified"
@@ -59,6 +60,14 @@ class ChangeEvent(SQLModel, table=True):
     urgency: Optional[str] = None
     enrichment_model: Optional[str] = None
     enrichment_tokens_used: Optional[int] = None
+
+    # Triage
+    triage_result: Optional[str] = None  # JSON: {"meaningful": bool, "triage_reasoning": "..."}
+    triage_tokens_used: Optional[int] = None
+    discovered_links: Optional[str] = None  # JSON: [{"url": "...", "reason": "..."}]
+
+    # Parent-child linkage for discovered links
+    parent_event_id: Optional[int] = Field(default=None, foreign_key="change_events.id", index=True)
 
     # Pipeline state
     pipeline_status: str = PipelineStatus.RECEIVED.value

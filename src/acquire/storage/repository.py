@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select, func
 
-from acquire.models.db import ChangeEvent, CostLedger
+from acquire.models.db import ChangeEvent, CostLedger, PipelineStatus
 
 
 async def create_event(session: AsyncSession, watch_uuid: str, watch_url: str) -> ChangeEvent:
@@ -40,6 +40,26 @@ async def get_events_today_count(session: AsyncSession) -> int:
         )
     )
     return result.scalar_one()
+
+
+async def create_child_event(
+    session: AsyncSession,
+    parent: ChangeEvent,
+    url: str,
+    page_text: str,
+) -> ChangeEvent:
+    """Create a child event from a discovered link. Starts at FETCHED (skips webhook fetch)."""
+    child = ChangeEvent(
+        watch_uuid=parent.watch_uuid,
+        watch_url=url,
+        parent_event_id=parent.id,
+        snapshot_text=page_text,
+        pipeline_status=PipelineStatus.FETCHED.value,
+    )
+    session.add(child)
+    await session.commit()
+    await session.refresh(child)
+    return child
 
 
 async def record_cost(

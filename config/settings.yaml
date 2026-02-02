@@ -9,10 +9,17 @@ pipeline:
     - RFP
     - ACTIONABLE
 
+link_discovery:
+  enabled: true
+  max_links_per_event: 3
+  max_page_fetch_chars: 8000
+
 llm:
   default_model: deepseek/deepseek-v3.2
   classify_model: deepseek/deepseek-v3.2
   enrich_model: deepseek/deepseek-v3.2
+  triage_model: deepseek/deepseek-v3.2
+  max_tokens_triage: 512
   max_tokens_classify: 1024
   max_tokens_enrich: 2048
   temperature: 0.1
