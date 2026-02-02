@@ -20,6 +20,8 @@ def _build_slack_blocks(event: ChangeEvent) -> list[dict]:
     emoji = urgency_emoji.get(urgency, ":large_blue_circle:")
     classification = event.classification or "UNKNOWN"
 
+    divider = {"type": "divider"}
+
     blocks = [
         {
             "type": "header",
@@ -28,11 +30,12 @@ def _build_slack_blocks(event: ChangeEvent) -> list[dict]:
                 "text": f"{emoji} {classification} - {urgency} Urgency",
             },
         },
+        divider,
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"*Source:* <{event.watch_url}|{_truncate(event.watch_url, 80)}>",
+                "text": f":link: *Source:* <{event.watch_url}|{_truncate(event.watch_url, 80)}>",
             },
         },
     ]
@@ -46,6 +49,8 @@ def _build_slack_blocks(event: ChangeEvent) -> list[dict]:
             },
         })
 
+    blocks.append(divider)
+
     if event.recommended_actions:
         try:
             actions = json.loads(event.recommended_actions)
@@ -53,42 +58,67 @@ def _build_slack_blocks(event: ChangeEvent) -> list[dict]:
             actions = []
 
         if actions:
-            action_text = "\n".join(f"• {a}" for a in actions)
+            action_text = "\n".join(f"{i}. {a}" for i, a in enumerate(actions, 1))
             blocks.append({
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*Recommended Actions*\n{action_text}",
+                    "text": f":clipboard: *Next Steps*\n{action_text}",
                 },
             })
 
-    # Context block with metadata
-    context_elements = []
-    if event.parent_event_id is not None:
-        context_elements.append({
-            "type": "mrkdwn",
-            "text": f"Discovered via Event #{event.parent_event_id}",
-        })
-    if event.classification_confidence is not None:
-        context_elements.append({
-            "type": "mrkdwn",
-            "text": f"Confidence: {event.classification_confidence:.0%}",
-        })
-    if event.classification_model:
-        context_elements.append({
-            "type": "mrkdwn",
-            "text": f"Model: {event.classification_model}",
-        })
-    context_elements.append({
-        "type": "mrkdwn",
-        "text": f"Event #{event.id}",
-    })
+    if event.key_dates:
+        try:
+            dates = json.loads(event.key_dates)
+        except (json.JSONDecodeError, TypeError):
+            dates = []
 
-    if context_elements:
-        blocks.append({
-            "type": "context",
-            "elements": context_elements,
-        })
+        if dates:
+            date_text = "\n".join(f"  - {d}" for d in dates)
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f":calendar: *Key Dates*\n{date_text}",
+                },
+            })
+
+    if event.relevant_agencies:
+        try:
+            agencies = json.loads(event.relevant_agencies)
+        except (json.JSONDecodeError, TypeError):
+            agencies = []
+
+        if agencies:
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f":office: *Agencies*\n  {'  |  '.join(agencies)}",
+                },
+            })
+
+    blocks.append(divider)
+
+    # Context block: single line with pipe separators
+    context_parts = []
+    if event.parent_event_id is not None:
+        context_parts.append(f"Discovered via Event #{event.parent_event_id}")
+    if event.classification_confidence is not None:
+        context_parts.append(f"Confidence: {event.classification_confidence:.0%}")
+    if event.enrichment_model:
+        context_parts.append(event.enrichment_model)
+    context_parts.append(f"Event #{event.id}")
+
+    blocks.append({
+        "type": "context",
+        "elements": [
+            {
+                "type": "mrkdwn",
+                "text": "  |  ".join(context_parts),
+            },
+        ],
+    })
 
     return blocks
 

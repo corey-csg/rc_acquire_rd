@@ -58,6 +58,8 @@ class ChangeEvent(SQLModel, table=True):
     summary: Optional[str] = None
     recommended_actions: Optional[str] = None  # JSON list stored as string
     urgency: Optional[str] = None
+    key_dates: Optional[str] = None  # JSON list stored as string
+    relevant_agencies: Optional[str] = None  # JSON list stored as string
     enrichment_model: Optional[str] = None
     enrichment_tokens_used: Optional[int] = None
 

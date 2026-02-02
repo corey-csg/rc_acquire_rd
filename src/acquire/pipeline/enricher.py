@@ -62,6 +62,8 @@ async def enrich(session: AsyncSession, event: ChangeEvent) -> EnrichmentResult 
     event.summary = enrichment.summary
     event.recommended_actions = json.dumps(enrichment.recommended_actions)
     event.urgency = enrichment.urgency
+    event.key_dates = json.dumps(enrichment.key_dates) if enrichment.key_dates else None
+    event.relevant_agencies = json.dumps(enrichment.relevant_agencies) if enrichment.relevant_agencies else None
     event.enrichment_model = result["model"]
     event.enrichment_tokens_used = result["total_tokens"]
     event.pipeline_status = PipelineStatus.ENRICHED.value
