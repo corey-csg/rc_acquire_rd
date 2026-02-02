@@ -1,0 +1,29 @@
+pipeline:
+  min_diff_length: 50
+  classifications_to_enrich:
+    - RFI
+    - RFP
+    - ACTIONABLE
+  classifications_to_notify:
+    - RFI
+    - RFP
+    - ACTIONABLE
+
+llm:
+  default_model: deepseek/deepseek-v3.2
+  classify_model: deepseek/deepseek-v3.2
+  enrich_model: deepseek/deepseek-v3.2
+  max_tokens_classify: 1024
+  max_tokens_enrich: 2048
+  temperature: 0.1
+
+budget:
+  daily_limit_usd: 5.00
+  warn_threshold_pct: 80
+
+slack:
+  urgency_emoji:
+    CRITICAL: ":rotating_light:"
+    HIGH: ":warning:"
+    MEDIUM: ":large_blue_circle:"
+    LOW: ":white_circle:"
