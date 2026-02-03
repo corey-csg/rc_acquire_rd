@@ -3,7 +3,7 @@
 
 import json
 import sys
-import httpx
+import urllib.request
 
 WEBHOOK_URL = sys.argv[1] if len(sys.argv) > 1 else None
 
@@ -27,6 +27,8 @@ payload = {
     ],
 }
 
-resp = httpx.post(WEBHOOK_URL, json=payload)
-print(f"Status: {resp.status_code}")
-print(f"Response: {resp.text}")
+data = json.dumps(payload).encode("utf-8")
+req = urllib.request.Request(WEBHOOK_URL, data=data, headers={"Content-Type": "application/json"})
+with urllib.request.urlopen(req) as resp:
+    print(f"Status: {resp.status}")
+    print(f"Response: {resp.read().decode()}")
